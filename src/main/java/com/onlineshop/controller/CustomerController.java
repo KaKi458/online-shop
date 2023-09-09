@@ -1,8 +1,11 @@
 package com.onlineshop.controller;
 
-import com.onlineshop.dto.ChangeQuantityDto;
-import com.onlineshop.dto.CustomerDto;
-import com.onlineshop.dto.ShoppingCartPositionDto;
+import com.onlineshop.dto.request.ChangeQuantityRequest;
+import com.onlineshop.dto.request.CustomerRequest;
+import com.onlineshop.dto.request.ShoppingCartPositionRequest;
+import com.onlineshop.dto.response.CustomerDto;
+import com.onlineshop.dto.response.ShoppingCart;
+import com.onlineshop.dto.response.ShoppingCartPositionDto;
 import com.onlineshop.service.CustomerService;
 import com.onlineshop.service.ShoppingCartService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/customers")
@@ -22,23 +24,23 @@ public class CustomerController {
     private final ShoppingCartService shoppingCartService;
 
     @PostMapping
-    public ResponseEntity<CustomerDto> addCustomer(@RequestBody CustomerDto customerDto) {
-        CustomerDto createdCustomer = customerService.addCustomer(customerDto);
+    public ResponseEntity<CustomerDto> addCustomer(@RequestBody CustomerRequest customerRequest) {
+        CustomerDto createdCustomer = customerService.addCustomer(customerRequest);
         URI uri = URI.create("");
         return ResponseEntity.created(uri).body(createdCustomer);
     }
 
     @GetMapping("/{customerId}")
     public ResponseEntity<CustomerDto> getCustomer(@PathVariable Long customerId) {
-        CustomerDto customerDto = customerService.getCustomer(customerId);
-        return ResponseEntity.ok(customerDto);
+        CustomerDto customer = customerService.getCustomer(customerId);
+        return ResponseEntity.ok(customer);
     }
 
     @PutMapping("/{customerId}")
     public ResponseEntity<CustomerDto> updateCustomer(
-            @PathVariable Long customerId, @RequestBody CustomerDto customerDto) {
-        CustomerDto updatedCustomerDto = customerService.updateCustomer(customerId, customerDto);
-        return ResponseEntity.ok(updatedCustomerDto);
+            @PathVariable Long customerId, @RequestBody CustomerRequest customerRequest) {
+        CustomerDto updatedCustomer = customerService.updateCustomer(customerId, customerRequest);
+        return ResponseEntity.ok(updatedCustomer);
     }
 
     @DeleteMapping("/{customerId}")
@@ -49,14 +51,14 @@ public class CustomerController {
 
     @PostMapping("/{customerId}/shoppingCart")
     public ResponseEntity<ShoppingCartPositionDto> addPositionToShoppingCart(
-            @PathVariable Long customerId, @RequestBody ShoppingCartPositionDto positionDto) {
-        ShoppingCartPositionDto createdPositionDto = shoppingCartService.addPosition(customerId, positionDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPositionDto);
+            @PathVariable Long customerId, @RequestBody ShoppingCartPositionRequest positionDto) {
+        ShoppingCartPositionDto createdPosition = shoppingCartService.addPosition(customerId, positionDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdPosition);
     }
 
     @GetMapping("/{customerId}/shoppingCart")
-    public ResponseEntity<List<ShoppingCartPositionDto>> getShoppingCart(@PathVariable Long customerId) {
-        List<ShoppingCartPositionDto> shoppingCart  = shoppingCartService.getShoppingCart(customerId);
+    public ResponseEntity<ShoppingCart> getShoppingCart(@PathVariable Long customerId) {
+        ShoppingCart shoppingCart  = shoppingCartService.getShoppingCart(customerId);
         return ResponseEntity.ok(shoppingCart);
     }
 
@@ -64,10 +66,10 @@ public class CustomerController {
     public ResponseEntity<ShoppingCartPositionDto> changeShoppingCartPositionQuantity(
             @PathVariable Long customerId,
             @PathVariable Long productId,
-            @RequestBody ChangeQuantityDto changeQuantityDto) {
-        ShoppingCartPositionDto updatedPositionDto =
-                shoppingCartService.changeQuantity(customerId, productId, changeQuantityDto);
-        return ResponseEntity.ok(updatedPositionDto);
+            @RequestBody ChangeQuantityRequest changeQuantityRequest) {
+        ShoppingCartPositionDto updatedPosition =
+                shoppingCartService.changeQuantity(customerId, productId, changeQuantityRequest);
+        return ResponseEntity.ok(updatedPosition);
     }
 
     @DeleteMapping("/{customerId}/shoppingCart/{productId}")

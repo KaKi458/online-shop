@@ -1,7 +1,9 @@
 package com.onlineshop.service;
 
-import com.onlineshop.dto.ChangeQuantityDto;
-import com.onlineshop.dto.ShoppingCartPositionDto;
+import com.onlineshop.dto.request.ChangeQuantityRequest;
+import com.onlineshop.dto.request.ShoppingCartPositionRequest;
+import com.onlineshop.dto.response.ShoppingCart;
+import com.onlineshop.dto.response.ShoppingCartPositionDto;
 import com.onlineshop.exception.ApiException;
 import com.onlineshop.model.Customer;
 import com.onlineshop.model.Product;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +27,7 @@ public class ShoppingCartService {
     private final ProductRepository productRepository;
     private final ShoppingCartRepository shoppingCartRepository;
 
-    public ShoppingCartPositionDto addPosition(Long customerId, ShoppingCartPositionDto positionDto) {
+    public ShoppingCartPositionDto addPosition(Long customerId, ShoppingCartPositionRequest positionDto) {
         Customer customer = findCustomer(customerId);
         Product product = findProduct(positionDto.getProductId());
         Integer quantity = positionDto.getQuantity();
@@ -60,9 +63,9 @@ public class ShoppingCartService {
     }
 
     public ShoppingCartPositionDto changeQuantity(
-            Long customerId, Long productId, ChangeQuantityDto changeQuantityDto) {
+            Long customerId, Long productId, ChangeQuantityRequest changeQuantityRequest) {
         Customer customer = findCustomer(customerId);
-        Integer quantity = changeQuantityDto.getQuantity();
+        Integer quantity = changeQuantityRequest.getQuantity();
 
         ShoppingCartPosition position = customer.getShoppingCart()
                 .stream()
@@ -81,11 +84,20 @@ public class ShoppingCartService {
         return mapToDto(updatedPosition);
     }
 
-    public List<ShoppingCartPositionDto> getShoppingCart(Long customerId) {
-        List<ShoppingCartPosition> shoppingCart = shoppingCartRepository.findAllByCustomerId(customerId);
-        return shoppingCart.stream().map(this::mapToDto).toList();
+    public ShoppingCart getShoppingCart(Long customerId) {
+        List<ShoppingCartPosition> positionList = shoppingCartRepository.findAllByCustomerId(customerId);
+        List<ShoppingCartPositionDto> positionDtoList = positionList.stream().map(this::mapToDto).toList();
+        int totalQuantity = positionList.stream().mapToInt(ShoppingCartPosition::getQuantity).sum();
+        BigDecimal totalPrice = BigDecimal.valueOf(
+                positionDtoList.stream()
+                        .map(ShoppingCartPositionDto::getTotalPrice)
+                        .mapToDouble(BigDecimal::doubleValue).sum());
+        return ShoppingCart.builder()
+                .positions(positionDtoList)
+                .totalQuantity(totalQuantity)
+                .totalPrice(totalPrice)
+                .build();
     }
-
 
     public void deletePosition(Long customerId, Long productId) {
         Customer customer = findCustomer(customerId);
@@ -99,10 +111,16 @@ public class ShoppingCartService {
     }
 
     private ShoppingCartPositionDto mapToDto(ShoppingCartPosition position) {
-        return new ShoppingCartPositionDto(
-              position.getProduct().getId(),
-              position.getQuantity()
-        );
+        Product product = position.getProduct();
+        int quantity = position.getQuantity();
+
+        return ShoppingCartPositionDto.builder()
+                .productId(product.getId())
+                .productName(product.getName())
+                .productPrice(product.getPrice())
+                .quantity(quantity)
+                .totalPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)))
+                .build();
     }
 
     private Customer findCustomer(Long customerId) {

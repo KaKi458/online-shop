@@ -1,7 +1,6 @@
 package com.onlineshop.service;
 
-import com.onlineshop.dto.OrderDto;
-import com.onlineshop.model.Order;
+import com.onlineshop.dto.response.OrderDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

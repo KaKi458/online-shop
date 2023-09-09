@@ -1,4 +1,4 @@
-package com.onlineshop.dto;
+package com.onlineshop.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShoppingCartPositionDto {
+public class CategoryRequest {
 
-    private Long productId;
-    private Integer quantity;
+    private String name;
 }

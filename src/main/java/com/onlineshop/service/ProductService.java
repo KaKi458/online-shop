@@ -1,6 +1,7 @@
 package com.onlineshop.service;
 
-import com.onlineshop.dto.ProductDto;
+import com.onlineshop.dto.request.ProductRequest;
+import com.onlineshop.dto.response.ProductDto;
 import com.onlineshop.exception.ApiException;
 import com.onlineshop.model.Category;
 import com.onlineshop.model.Product;
@@ -23,18 +24,18 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    public ProductDto addProduct(ProductDto productDto) {
-        Product product = mapToProduct(productDto);
+    public ProductDto addProduct(ProductRequest productRequest) {
+        Product product = mapToProduct(productRequest);
         Product createdProduct = productRepository.save(product);
         return mapToProductDto(createdProduct);
     }
 
-    public ProductDto updateProduct(long productId, ProductDto productDto) {
+    public ProductDto updateProduct(long productId, ProductRequest productRequest) {
         Product product = findProduct(productId);
-        product.setName(productDto.getName());
-        product.setCategory(findCategory(productDto.getCategoryId()));
-        product.setPrice(productDto.getPrice());
-        product.setQuantity(productDto.getQuantity());
+        product.setName(productRequest.getName());
+        product.setCategory(findCategory(productRequest.getCategoryId()));
+        product.setPrice(productRequest.getPrice());
+        product.setQuantity(productRequest.getQuantity());
         Product updatedProduct = productRepository.save(product);
         return mapToProductDto(updatedProduct);
     }
@@ -65,7 +66,7 @@ public class ProductService {
         productRepository.delete(product);
     }
 
-    private Product mapToProduct(ProductDto dto) {
+    private Product mapToProduct(ProductRequest dto) {
         return Product.builder()
                 .category(findCategory(dto.getCategoryId()))
                 .name(dto.getName())
@@ -79,6 +80,7 @@ public class ProductService {
                 .productId(product.getId())
                 .name(product.getName())
                 .categoryId(product.getCategory().getId())
+                .categoryName(product.getCategory().getName())
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
                 .build();

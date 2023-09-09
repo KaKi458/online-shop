@@ -1,4 +1,4 @@
-package com.onlineshop.dto;
+package com.onlineshop.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +11,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductDto {
+public class ProductRequest {
 
-    private Long productId;
     private String name;
     private Long categoryId;
     private BigDecimal price;

@@ -1,10 +1,9 @@
 package com.onlineshop.service;
 
-import com.onlineshop.dto.CategoryDto;
-import com.onlineshop.dto.ProductDto;
+import com.onlineshop.dto.request.CategoryRequest;
+import com.onlineshop.dto.response.CategoryDto;
 import com.onlineshop.exception.ApiException;
 import com.onlineshop.model.Category;
-import com.onlineshop.model.Product;
 import com.onlineshop.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -19,15 +18,15 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public CategoryDto addCategory(CategoryDto categoryDto) {
-        Category category = mapToCategory(categoryDto);
+    public CategoryDto addCategory(CategoryRequest categoryRequest) {
+        Category category = mapToCategory(categoryRequest);
         Category createdCategory = categoryRepository.save(category);
         return mapToCategoryDto(createdCategory);
     }
 
-    public CategoryDto updateCategory(Long categoryId, CategoryDto categoryDto) {
+    public CategoryDto updateCategory(Long categoryId, CategoryRequest categoryRequest) {
         Category category = findCategory(categoryId);
-        category.setName(categoryDto.getName());
+        category.setName(categoryRequest.getName());
         Category updatedCategory = categoryRepository.save(category);
         return mapToCategoryDto(updatedCategory);
     }
@@ -35,11 +34,6 @@ public class CategoryService {
     public List<CategoryDto> getCategories() {
         List<Category> categories = categoryRepository.findAll(Sort.by("name"));
         return categories.stream().map(this::mapToCategoryDto).toList();
-    }
-
-    public CategoryDto getCategory(Long categoryId) {
-        Category category = findCategory(categoryId);
-        return mapToCategoryDto(category);
     }
 
     public void deleteCategory(Long categoryId) {
@@ -53,7 +47,7 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
-    private Category mapToCategory(CategoryDto dto) {
+    private Category mapToCategory(CategoryRequest dto) {
         Category category = new Category();
         category.setName(dto.getName());
         return category;

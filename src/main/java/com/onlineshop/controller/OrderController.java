@@ -1,6 +1,6 @@
 package com.onlineshop.controller;
 
-import com.onlineshop.dto.OrderDto;
+import com.onlineshop.dto.response.OrderDto;
 import com.onlineshop.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

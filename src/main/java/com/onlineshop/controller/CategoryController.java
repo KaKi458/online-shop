@@ -1,6 +1,7 @@
 package com.onlineshop.controller;
 
-import com.onlineshop.dto.CategoryDto;
+import com.onlineshop.dto.request.CategoryRequest;
+import com.onlineshop.dto.response.CategoryDto;
 import com.onlineshop.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,22 +18,23 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryDto> addCategory(@RequestBody CategoryDto categoryDto) {
-        CategoryDto createdCategory = categoryService.addCategory(categoryDto);
-        URI uri = URI.create("");
+    public ResponseEntity<CategoryDto> addCategory(@RequestBody CategoryRequest categoryRequest) {
+        CategoryDto createdCategory = categoryService.addCategory(categoryRequest);
+        URI uri = URI.create("localhost:8080/categories/" + createdCategory.getCategoryId());
         return ResponseEntity.created(uri).body(createdCategory);
     }
 
     @GetMapping
     public ResponseEntity<List<CategoryDto>> getCategories() {
-        List<CategoryDto> categoryDtoList = categoryService.getCategories();
-        return ResponseEntity.ok(categoryDtoList);
+        List<CategoryDto> categories = categoryService.getCategories();
+        return ResponseEntity.ok(categories);
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long categoryId, @RequestBody CategoryDto categoryDto) {
-        CategoryDto updatedCategoryDto = categoryService.updateCategory(categoryId, categoryDto);
-        return ResponseEntity.ok(updatedCategoryDto);
+    public ResponseEntity<CategoryDto> updateCategory(
+            @PathVariable Long categoryId, @RequestBody CategoryRequest categoryRequest) {
+        CategoryDto updatedCategory = categoryService.updateCategory(categoryId, categoryRequest);
+        return ResponseEntity.ok(updatedCategory);
     }
 
     @DeleteMapping("/{categoryId}")

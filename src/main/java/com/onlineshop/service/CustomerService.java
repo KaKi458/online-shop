@@ -1,6 +1,7 @@
 package com.onlineshop.service;
 
-import com.onlineshop.dto.CustomerDto;
+import com.onlineshop.dto.request.CustomerRequest;
+import com.onlineshop.dto.response.CustomerDto;
 import com.onlineshop.exception.ApiException;
 import com.onlineshop.model.Customer;
 import com.onlineshop.repository.CustomerRepository;
@@ -14,21 +15,21 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public CustomerDto addCustomer(CustomerDto customerDto) {
-        if (customerRepository.existsByEmail(customerDto.getEmail())) {
+    public CustomerDto addCustomer(CustomerRequest customerRequest) {
+        if (customerRepository.existsByEmail(customerRequest.getEmail())) {
             throw new ApiException(
-                    HttpStatus.CONFLICT, "Customer with email <" + customerDto.getEmail() + "> already exists."
+                    HttpStatus.CONFLICT, "Customer with email <" + customerRequest.getEmail() + "> already exists."
             );
         }
-        Customer customer = mapToCustomer(customerDto);
+        Customer customer = mapToCustomer(customerRequest);
         Customer createdCustomer = customerRepository.save(customer);
         return mapToCustomerDto(createdCustomer);
     }
 
-    public CustomerDto updateCustomer(Long customerId, CustomerDto customerDto) {
+    public CustomerDto updateCustomer(Long customerId, CustomerRequest customerRequest) {
         Customer customer = findCustomer(customerId);
-        customer.setEmail(customerDto.getEmail());
-        customer.setLastName(customerDto.getLastName());
+        customer.setEmail(customerRequest.getEmail());
+        customer.setLastName(customerRequest.getLastName());
         Customer updatedCustomer = customerRepository.save(customer);
         return mapToCustomerDto(updatedCustomer);
     }
@@ -48,7 +49,7 @@ public class CustomerService {
         customerRepository.delete(customer);
     }
 
-    private Customer mapToCustomer(CustomerDto dto) {
+    private Customer mapToCustomer(CustomerRequest dto) {
         return Customer.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
